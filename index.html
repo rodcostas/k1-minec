@@ -25,6 +25,14 @@ html,body{height:100%;overflow:hidden;background:#15182F;font-family:Mont,system
 
 @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes drop{0%{transform:translateY(-46px);opacity:0}60%{opacity:1}100%{transform:translateY(0);opacity:1}}
+.note{width:284px;height:118px;margin-top:-34px;border-radius:14px;
+  background:linear-gradient(135deg,#EAF7F2,#C9EDE0);border:3px solid #8FD9C4;
+  display:flex;align-items:center;justify-content:center;color:#1C7F6D;font-size:38px;font-weight:700;
+  box-shadow:0 10px 20px rgba(39,43,88,.12);animation:drop .55s ease both}
+.tray{margin-top:22px;width:340px;height:24px;border-radius:8px;background:#14171C}
+.disp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.disp-n{font-size:34px;font-weight:700;color:var(--ink)}
 @keyframes feed{0%{transform:scale(1)}35%{transform:scale(.9)}100%{transform:scale(1)}}
 @keyframes scanline{0%{transform:translateY(0)}100%{transform:translateY(286px)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
@@ -264,8 +272,10 @@ const SERVICES = [
 const EXTRAS = [
   { id:"doc", name:"Documentos",      desc:"Emisi\u00F3n y pago de tr\u00E1mites",
     note:"Solicitud y pago de documentos oficiales, sin ventanilla." },
-  { id:"rem", name:"Remesas",         desc:"Retiro en efectivo",
-    note:"Retiro de remesas en efectivo, con el c\u00F3digo de la aplicaci\u00F3n." },
+  { id:"rem", name:"Remesas",         desc:"Retiro en efectivo", flow:"out",
+    inst:"Remesa familiar", instSub:"Desde Estados Unidos", sender:"Jos\u00E9 L\u00F3pez",
+    amount:200.00, denom:20, ref:"REM-77390",
+    idLabel:"DUI", idMask:"00000000-0", idLen:9, idValue:CFG.dui },
   { id:"mas", name:"Otros servicios", desc:"Se habilitan por configuraci\u00F3n",
     note:"Nuevos servicios se habilitan por configuraci\u00F3n, sin cambiar el equipo." },
 ];
@@ -403,6 +413,44 @@ s5: () => '<div class="slide s5" data-act="reset">'
   + (CFG.slide5Foot ? '<div class="s4-foot">'+CFG.slide5Foot+'</div>' : '')
   + '</div>',
 
+rfound: () => '<div class="app">' + header(S.svc.name,"Detalle",true) + '<div class="body"><div class="pane">'
+  + '<div class="step"><b></b>Remesa disponible</div>'
+  + '<h1 style="margin-top:8px">Retira tu remesa</h1>'
+  + '<div style="display:flex;flex-direction:column;gap:14px;margin-top:26px">'
+  + '<div class="inst"><div class="sq">'+ICON.rem('#272B58')+'</div>'
+  +   '<div><div class="inst-n">'+S.svc.sender+'</div><div class="inst-s">'+S.svc.instSub+'</div></div></div>'
+  + '<div class="row"><div class="rk">Beneficiario</div><div class="rv">'+CFG.user+'</div></div>'
+  + '<div class="row"><div class="rk">C\u00F3digo</div><div class="rv">'+S.svc.ref+'</div></div>'
+  + '<div class="total"><div class="total-k">Monto a recibir</div><div class="total-v">'+money(S.svc.amount)+'</div></div>'
+  + '</div><div class="grow"></div>'
+  + '<div class="btns"><div class="btn" data-act="disp">Retirar '+money(S.svc.amount)+'</div></div>'
+  + '</div></div></div>',
+
+rdisp: () => {
+  const c = Math.max(1, Math.round(S.svc.amount / S.svc.denom));
+  const shown = Math.min(c, 5);
+  return '<div class="app">' + header(S.svc.name,"Dispensando",false,true) + '<div class="body"><div class="pane">'
+  + '<h1 style="text-align:center">Retira tu efectivo</h1>'
+  + '<div class="disp"><div style="display:flex;flex-direction:column;align-items:center">'
+  +   Array.from({length:shown}, () => '<div class="note">'+money(S.svc.denom).replace('.00','')+'</div>').join('')
+  +   '<div class="tray"></div></div>'
+  + '<div class="disp-n">'+c+' \u00D7 '+money(S.svc.denom).replace('.00','')+'</div>'
+  + '<div class="scan-hint" style="margin:0">Toma los billetes de la bandeja</div></div>'
+  + '<div class="btns"><div class="btn" data-act="rdone">Ya tom\u00E9 mi efectivo</div></div>'
+  + '</div></div></div>';
+},
+
+rdone: () => '<div class="app">' + header(S.svc.name,"Completado",false,true) + '<div class="body"><div class="pane">'
+  + '<div class="done">'
+  +   '<div class="tick">'+ICON.tick+'</div>'
+  +   '<h1>Retiro completado</h1>'
+  +   '<div style="font-size:26px;font-weight:500;color:var(--body)">'+S.svc.sender+'</div>'
+  +   '<div class="done-amt">'+money(S.svc.amount)+'</div>'
+  +   '<div class="chip"><div class="chip-k">Beneficiario</div><div class="chip-v">'+CFG.user+'</div></div>'
+  + '</div>'
+  + '<div class="btns"><div class="btn" data-act="reset">Finalizar</div></div>'
+  + '</div></div></div>',
+
 menu: () => '<div class="app">' + header("Autoservicio","Inicio",false) + '<div class="body"><div class="pane">'
   + '<h1>&iquest;Qu&eacute; deseas hacer?</h1>'
   + '<div class="sub">Selecciona el servicio.</div>'
@@ -513,7 +561,8 @@ done: () => {
 };
 
 const NAMES = { s1:"Diapositiva 1 — 87.4%", s2:"Diapositiva 2 — 4 horas", s3:"Diapositiva 3 — recaudación",
-  s4:"Diapositiva 4 — acceso mutuo", s5:"Cierre — otros usos", info:"Otros usos", menu:"Servicios", method:"Identificación", qr:"Código QR",
+  s4:"Diapositiva 4 — acceso mutuo", s5:"Cierre — otros usos", info:"Otros usos",
+  rfound:"Remesa · detalle", rdisp:"Remesa · dispensando", rdone:"Remesa · completado", menu:"Servicios", method:"Identificación", qr:"Código QR",
   dui:"Entrada manual", found:"Detalle", cash:"Efectivo", done:"Completado" };
 
 /* ═══════════ render ═══════════ */
@@ -530,7 +579,7 @@ function next(){
   if (i >= 0) return go(i === SLIDES.length-1 ? "menu" : SLIDES[i+1]);
 }
 function back(){
-  const prev = { method:"menu", qr:"method", dui:"method", found:S.method==="movil"?"qr":"dui", cash:"found", info:"menu" };
+  const prev = { method:"menu", qr:"method", dui:"method", rfound:S.method==="movil"?"qr":"dui", found:S.method==="movil"?"qr":"dui", cash:"found", info:"menu" };
   go(prev[S.screen] || "menu");
 }
 function reset(){ go("s1", { svc:SERVICES[0], method:null, entry:"", inserted:0, fed:null }); }
@@ -545,7 +594,11 @@ document.addEventListener("click", e => {
   if (a === "back")  return back();
   if (a === "reset") return reset();
 
-  if (a === "extra") return go("info", { extra: el.dataset.id });
+  if (a === "extra"){
+    const x = EXTRAS.find(e => e.id === el.dataset.id);
+    if (x.flow === "out") return go("method", { svc:x, entry:"", method:null });
+    return go("info", { extra: el.dataset.id });
+  }
   if (a === "svc"){
     const s = SERVICES.find(x => x.id === el.dataset.id);
     return go("method", { svc:s, entry:"", inserted:0, method:null, fed:null });
@@ -560,7 +613,9 @@ document.addEventListener("click", e => {
     else if (S.entry.length < S.svc.idLen) S.entry += k;
     return render();
   }
-  if (a === "found")  return go("found");
+  if (a === "found")  return go(S.svc.flow === "out" ? "rfound" : "found");
+  if (a === "disp")   return go("rdisp");
+  if (a === "rdone")  return go("rdone");
   if (a === "tocash") return go("cash", { inserted:0, fed:null });
   if (a === "feed"){
     S.inserted = Math.round((S.inserted + parseFloat(el.dataset.v)) * 100) / 100;
