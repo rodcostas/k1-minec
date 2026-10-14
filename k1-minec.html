@@ -55,6 +55,11 @@ html,body{height:100%;overflow:hidden;background:#15182F;font-family:Mont,system
 .s4-foot{position:absolute;left:0;right:0;bottom:calc(var(--safe-b) + 34px);text-align:center;
   font-size:19px;font-weight:500;color:#fff;letter-spacing:.09em;opacity:.82}
 
+/* slide 5 */
+.slide.s5{justify-content:flex-start;padding-top:300px}
+.s5-list{margin-top:118px;display:flex;flex-direction:column;align-items:center;gap:42px}
+.s5-item{font-size:47px;font-weight:600;color:#fff;letter-spacing:-.01em;white-space:nowrap;line-height:1.1}
+
 /* ─────────── app shell ─────────── */
 .app{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--page)}
 .hdr{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;
@@ -81,19 +86,22 @@ h1{font-size:46px;font-weight:700;color:var(--ink);letter-spacing:-.025em;line-h
 .grow{flex:1}
 
 /* cards */
-.card{display:flex;align-items:center;gap:22px;padding:26px 28px;border-radius:24px;background:#fff;
+.card{display:flex;align-items:center;gap:20px;padding:22px 26px;border-radius:22px;background:#fff;
   border:2px solid var(--line);cursor:pointer}
 .card:active{border-color:var(--blue);background:#F7F9FF}
 .card.hero{background:var(--blue);border-color:var(--blue);box-shadow:0 14px 30px rgba(85,118,255,.28)}
 .card.hero:active{background:var(--blue-d)}
-.sq{display:flex;align-items:center;justify-content:center;width:78px;height:78px;border-radius:20px;
+.sq{display:flex;align-items:center;justify-content:center;width:66px;height:66px;border-radius:18px;
   background:var(--page);flex:none}
 .card.hero .sq{background:rgba(255,255,255,.18)}
-.ct{font-size:31px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
-.cs{font-size:19px;font-weight:400;color:var(--mute);margin-top:3px}
+.ct{font-size:28px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.cs{font-size:18px;font-weight:400;color:var(--mute);margin-top:3px}
 .card.hero .ct{color:#fff}
 .card.hero .cs{color:rgba(255,255,255,.86)}
-.stack{display:flex;flex-direction:column;gap:16px;margin-top:30px}
+.stack{display:flex;flex-direction:column;gap:14px;margin-top:24px}
+.divider{display:flex;align-items:center;gap:14px;margin:8px 2px 2px}
+.divider span{font-size:14px;font-weight:600;color:var(--mute);letter-spacing:.16em}
+.divider i{flex:1;height:1px;background:var(--line)}
 
 /* primary button */
 .btn{display:flex;align-items:center;justify-content:center;height:100px;border-radius:22px;
@@ -160,6 +168,12 @@ h1{font-size:46px;font-weight:700;color:var(--ink);letter-spacing:-.025em;line-h
 .falta{font-size:24px;font-weight:500;color:var(--mute)}
 .pill{padding:16px 26px;border-radius:18px;background:var(--mint-l);color:#1C7F6D;font-size:24px;font-weight:600;text-align:center}
 
+/* info (otros usos) */
+.info-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.info-ic{display:flex;align-items:center;justify-content:center;width:132px;height:132px;border-radius:50%;background:#EBEFFF}
+.info-ic svg{width:62px;height:62px}
+.info-note{font-size:25px;font-weight:400;color:var(--body);text-align:center;max-width:580px;line-height:1.5}
+
 /* done */
 .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
 .tick{display:flex;align-items:center;justify-content:center;width:144px;height:144px;border-radius:50%;background:var(--mint-l)}
@@ -207,6 +221,7 @@ h1{font-size:46px;font-weight:700;color:var(--ink);letter-spacing:-.025em;line-h
   <div class="now" id="now"></div>
   <button class="p" data-act="go" data-to="s1">Ir a presentación</button>
   <button data-act="go" data-to="menu">Ir a servicios</button>
+  <button data-act="go" data-to="s5">Ir a otros usos</button>
   <button data-act="reset">Reiniciar</button>
 </div>
 
@@ -220,6 +235,11 @@ const CFG = {
   slide3Figure2: "",                  // deja "" para una sola línea
   slide3Caption: "SE DEJA DE PAGAR POR FRICCIÓN",
   slide3Source:  "",
+
+  // Diapositiva de cierre — ya no está en el flujo; accesible desde el panel.
+  slide5Title: "OTROS USOS",
+  slide5Items: ["DOCUMENTOS", "REMESAS", "OTROS SERVICIOS"],
+  slide5Foot:  "",
 
   user: "Rosa López",
   dui:  "048217739",            // se muestra 04821773-9
@@ -240,6 +260,16 @@ const SERVICES = [
     amount:12.00, idLabel:"Número de teléfono", idMask:"0000 0000", idLen:8, idValue:"76208971" },
 ];
 
+// Usos adicionales — aparecen en el menú junto a los servicios de pago.
+const EXTRAS = [
+  { id:"doc", name:"Documentos",      desc:"Emisi\u00F3n y pago de tr\u00E1mites",
+    note:"Solicitud y pago de documentos oficiales, sin ventanilla." },
+  { id:"rem", name:"Remesas",         desc:"Retiro en efectivo",
+    note:"Retiro de remesas en efectivo, con el c\u00F3digo de la aplicaci\u00F3n." },
+  { id:"mas", name:"Otros servicios", desc:"Se habilitan por configuraci\u00F3n",
+    note:"Nuevos servicios se habilitan por configuraci\u00F3n, sin cambiar el equipo." },
+];
+
 const DENOMS = [
   { v:20,   label:"$20",  kind:"bill" },
   { v:10,   label:"$10",  kind:"bill" },
@@ -251,6 +281,7 @@ let S = {
   screen: "s1",
   svc: SERVICES[0],
   method: null,       // 'movil' | 'terminal'
+  extra: null,        // id de "otros usos" seleccionado
   entry: "",          // dígitos tecleados
   inserted: 0,
   fed: null, fedN: 0,
@@ -281,10 +312,14 @@ const ICON = {
   pad:   c => '<svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round"><circle cx="14" cy="14" r="2.6"/><circle cx="24" cy="14" r="2.6"/><circle cx="34" cy="14" r="2.6"/><circle cx="14" cy="24" r="2.6"/><circle cx="24" cy="24" r="2.6"/><circle cx="34" cy="24" r="2.6"/><circle cx="14" cy="34" r="2.6"/><circle cx="24" cy="34" r="2.6"/><circle cx="34" cy="34" r="2.6"/></svg>',
   bolt:  c => '<svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M26 4L10 27h12l-2 17 18-23H26z"/></svg>',
   drop:  c => '<svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M24 5s13 14 13 22a13 13 0 01-26 0C11 19 24 5 24 5z"/></svg>',
-  sim:   c => '<svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="11" y="5" width="26" height="38" rx="5"/><path d="M18 16h12M18 24h12M18 32h7"/></svg>',
+  sim:   c => '<svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="22" r="3.2"/><path d="M24 27v15"/><path d="M15.5 13.5a12 12 0 000 17M32.5 13.5a12 12 0 010 17"/><path d="M9 7a20 20 0 000 30M39 7a20 20 0 010 30"/></svg>',
+  doc:   c => '<svg viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M28 5H13a3 3 0 00-3 3v32a3 3 0 003 3h22a3 3 0 003-3V15z"/><path d="M28 5v10h10"/><path d="M17 25h14M17 33h10"/></svg>',
+  rem:   c => '<svg viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="13" width="38" height="21" rx="3"/><circle cx="24" cy="23.5" r="4.6"/><path d="M24 45V35m0 0l-4.5 4.5M24 35l4.5 4.5"/></svg>',
+  mas:   c => '<svg viewBox="0 0 48 48" width="34" height="34" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="3.5"/><rect x="27" y="8" width="13" height="13" rx="3.5"/><rect x="8" y="27" width="13" height="13" rx="3.5"/><rect x="27" y="27" width="13" height="13" rx="3.5"/></svg>',
   arrows: '<svg viewBox="0 0 34 64" width="38" height="72" fill="none" stroke="#2FBFA8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 56V8M7 15l6-7 6 7"/><path d="M21 8v48M27 49l-6 7-6-7"/></svg>',
 };
-const SVCICON = { imp:ICON.bank, luz:ICON.bolt, agua:ICON.drop, tel:ICON.sim };
+const SVCICON = { imp:ICON.bank, luz:ICON.bolt, agua:ICON.drop, tel:ICON.sim,
+                  doc:ICON.doc, rem:ICON.rem, mas:ICON.mas };
 
 function lockup(){ return '<span class="lock">K1<i> digital</i></span>'; }
 
@@ -348,12 +383,36 @@ s4: () => '<div class="slide s4" data-act="next">'
   + '</div>'
   + '<div class="s4-foot">UN PUNTO DE ACCESO. VALOR EN AMBAS DIRECCIONES.</div></div>',
 
+info: () => {
+  const x = EXTRAS.find(e => e.id === S.extra) || EXTRAS[0];
+  return '<div class="app">' + header(x.name,"Otros usos",true) + '<div class="body"><div class="pane">'
+  + '<div class="info-mid">'
+  +   '<div class="info-ic">'+SVCICON[x.id]('#5576FF')+'</div>'
+  +   '<h1 style="text-align:center">'+x.name+'</h1>'
+  +   '<div class="info-note">'+x.note+'</div>'
+  + '</div>'
+  + '<div class="btns"><div class="btn" data-act="back">Volver</div></div>'
+  + '</div></div></div>';
+},
+
+s5: () => '<div class="slide s5" data-act="reset">'
+  + '<div class="s4-title">'+CFG.slide5Title+'</div>'
+  + '<div class="s5-list">'
+  + CFG.slide5Items.map(x => '<div class="s5-item">'+x+'</div>').join('')
+  + '</div>'
+  + (CFG.slide5Foot ? '<div class="s4-foot">'+CFG.slide5Foot+'</div>' : '')
+  + '</div>',
+
 menu: () => '<div class="app">' + header("Autoservicio","Inicio",false) + '<div class="body"><div class="pane">'
-  + '<h1>&iquest;Qu&eacute; deseas pagar?</h1>'
+  + '<h1>&iquest;Qu&eacute; deseas hacer?</h1>'
   + '<div class="sub">Selecciona el servicio.</div>'
   + '<div class="stack">'
   + SERVICES.map((s,i)=>'<div class="card'+(i===0?' hero':'')+'" data-act="svc" data-id="'+s.id+'">'
       + '<div class="sq">'+SVCICON[s.id](i===0?'#fff':'#272B58')+'</div>'
+      + '<div><div class="ct">'+s.name+'</div><div class="cs">'+s.desc+'</div></div></div>').join('')
+  + '<div class="divider"><span>OTROS USOS</span><i></i></div>'
+  + EXTRAS.map(s=>'<div class="card" data-act="extra" data-id="'+s.id+'">'
+      + '<div class="sq">'+SVCICON[s.id]('#272B58')+'</div>'
       + '<div><div class="ct">'+s.name+'</div><div class="cs">'+s.desc+'</div></div></div>').join('')
   + '</div><div class="grow"></div></div></div></div>',
 
@@ -454,7 +513,7 @@ done: () => {
 };
 
 const NAMES = { s1:"Diapositiva 1 — 87.4%", s2:"Diapositiva 2 — 4 horas", s3:"Diapositiva 3 — recaudación",
-  s4:"Diapositiva 4 — acceso mutuo", menu:"Servicios", method:"Identificación", qr:"Código QR",
+  s4:"Diapositiva 4 — acceso mutuo", s5:"Cierre — otros usos", info:"Otros usos", menu:"Servicios", method:"Identificación", qr:"Código QR",
   dui:"Entrada manual", found:"Detalle", cash:"Efectivo", done:"Completado" };
 
 /* ═══════════ render ═══════════ */
@@ -471,7 +530,7 @@ function next(){
   if (i >= 0) return go(i === SLIDES.length-1 ? "menu" : SLIDES[i+1]);
 }
 function back(){
-  const prev = { method:"menu", qr:"method", dui:"method", found:S.method==="movil"?"qr":"dui", cash:"found" };
+  const prev = { method:"menu", qr:"method", dui:"method", found:S.method==="movil"?"qr":"dui", cash:"found", info:"menu" };
   go(prev[S.screen] || "menu");
 }
 function reset(){ go("s1", { svc:SERVICES[0], method:null, entry:"", inserted:0, fed:null }); }
@@ -486,6 +545,7 @@ document.addEventListener("click", e => {
   if (a === "back")  return back();
   if (a === "reset") return reset();
 
+  if (a === "extra") return go("info", { extra: el.dataset.id });
   if (a === "svc"){
     const s = SERVICES.find(x => x.id === el.dataset.id);
     return go("method", { svc:s, entry:"", inserted:0, method:null, fed:null });
